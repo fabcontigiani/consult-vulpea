@@ -8,6 +8,7 @@ Use [Consult](https://github.com/minad/consult) in tandem with [Vulpea](https://
 
 - **Live previews**: When selecting notes via `vulpea-find` or `vulpea-insert`, get a live preview of the note file as you navigate through candidates.
 - **Consult-powered grep/find**: Use `consult-vulpea-grep` and `consult-vulpea-find` to search within your vulpea directories with live previews.
+- **Consult-buffer integration**: Quickly switch to open vulpea note buffers using `consult-buffer` with narrowing support (default key `v`).
 
 ## Installation
 
@@ -57,10 +58,14 @@ Add to `config.el`:
 | `consult-vulpea-grep-command` | `consult-ripgrep` | Grep command to use (can also be `consult-grep`) |
 | `consult-vulpea-find-command` | `consult-find` | Find command to use |
 | `consult-vulpea-preview-key` | `consult-preview-key` | Key to trigger preview, defaults to consult's global setting |
+| `consult-vulpea-buffer-narrow-key` | `?v` | Narrow key for `consult-buffer` integration |
 
 ## How it works
 
-When `consult-vulpea-mode` is enabled, the package advises `vulpea-select-from` with a consult-powered replacement. This means all vulpea commands that use the note selection interface (like `vulpea-find` and `vulpea-insert`) automatically gain consult features.
+When `consult-vulpea-mode` is enabled, the package:
+
+1. Advises `vulpea-select-from` with a consult-powered replacement. This means all vulpea commands that use the note selection interface (like `vulpea-find` and `vulpea-insert`) automatically gain consult features.
+2. Adds a new "Vulpea" source to `consult-buffer-sources`, allowing you to narrow to open vulpea note buffers by pressing `v`.
 
 ## Requirements
 

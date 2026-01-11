@@ -43,6 +43,9 @@
 ;; 2. **Consult-powered grep/find**: Use `consult-vulpea-grep' and
 ;;    `consult-vulpea-find' to search within your vulpea directories
 ;;    with live previews.
+;;
+;; 3. **Consult-buffer integration**: Quickly switch to open vulpea
+;;    note buffers using `consult-buffer' with narrowing support.
 
 ;;; Code:
 
