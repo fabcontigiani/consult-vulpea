@@ -80,6 +80,13 @@ Defaults to `consult-preview-key'."
                  key-sequence)
   :group 'consult-vulpea)
 
+(defcustom consult-vulpea-buffer-narrow-key ?v
+  "Narrow key for `consult-buffer' integration.
+When pressing this key in `consult-buffer', the candidates are
+narrowed to only show open vulpea note buffers."
+  :type 'character
+  :group 'consult-vulpea)
+
 ;;;; Helper functions
 
 (defun consult-vulpea--note-preview ()
@@ -93,6 +100,28 @@ Expects CAND to be a `vulpea-note' object (via :lookup)."
       (when (and (eq action 'preview) (vulpea-note-p cand))
         (funcall preview action
                  (funcall open (vulpea-note-path cand)))))))
+
+(defun consult-vulpea-buffer-p (buffer)
+  "Check if BUFFER is a vulpea note buffer.
+Returns non-nil if the buffer's file is indexed in the vulpea database."
+  (when-let ((file (buffer-file-name buffer)))
+    (vulpea-db-get-id-by-file file)))
+
+(defun consult-vulpea-buffer--list ()
+  "Return list of currently open vulpea buffers as buffer names."
+  (consult--buffer-query
+   :sort 'visibility
+   :as #'buffer-name
+   :predicate #'consult-vulpea-buffer-p))
+
+(defvar consult-vulpea-buffer-source
+  `(:name     "Vulpea"
+    :narrow   ,consult-vulpea-buffer-narrow-key
+    :category buffer
+    :face     consult-buffer
+    :state    ,#'consult--buffer-state
+    :items    ,#'consult-vulpea-buffer--list)
+  "Vulpea buffer source for `consult-buffer'.")
 
 ;;;; Core selection function
 
@@ -190,9 +219,14 @@ selecting notes."
       (progn
         ;; Override vulpea-select-from with our consult version
         (advice-add #'vulpea-select-from
-                    :override #'consult-vulpea-select-from))
+                    :override #'consult-vulpea-select-from)
+        ;; Add vulpea buffer source to consult-buffer
+        (add-to-list 'consult-buffer-sources 'consult-vulpea-buffer-source 'append))
     ;; Remove our advice
-    (advice-remove #'vulpea-select-from #'consult-vulpea-select-from)))
+    (advice-remove #'vulpea-select-from #'consult-vulpea-select-from)
+    ;; Remove buffer source
+    (setq consult-buffer-sources
+          (delete 'consult-vulpea-buffer-source consult-buffer-sources))))
 
 (provide 'consult-vulpea)
 ;;; consult-vulpea.el ends here
