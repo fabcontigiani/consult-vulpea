@@ -53,6 +53,7 @@
 (require 'vulpea)
 (require 'vulpea-note)
 (require 'vulpea-db)
+(require 'vulpea-db-query)
 (require 'vulpea-select)
 
 (defgroup consult-vulpea ()
@@ -106,9 +107,9 @@ Expects CAND to be a `vulpea-note' object (via :lookup)."
 
 (defun consult-vulpea-buffer-p (buffer)
   "Check if BUFFER is a vulpea note buffer.
-Returns non-nil if the buffer's file is indexed in the vulpea database."
-  (when-let ((file (buffer-file-name buffer)))
-    (vulpea-db-get-id-by-file file)))
+Returns non-nil if the buffer's file is an indexed vulpea note."
+  (when-let* ((file (buffer-file-name buffer)))
+    (not (null (vulpea-db-query-by-file-path file 0)))))
 
 (defun consult-vulpea-buffer--list ()
   "Return list of currently open vulpea buffers as buffer names."
