@@ -298,23 +298,30 @@ If not specified, defaults to `consult-vulpea-expand-aliases-default'."
 
          ;; Track user's raw input for new note creation.
          (user-input (or initial-prompt ""))
-         (note (consult--read
-                completions
-                :prompt (concat prompt ": ")
-                :require-match require-match
-                :initial initial-prompt
-                :history 'minibuffer-history
-                :state (consult-vulpea--note-preview)
-                :preview-key consult-vulpea-preview-key
-                :sort t
-                :category category
-                :annotate annotation-function
-                ;; :lookup returns the note object from alist, making it
-                ;; available to :state for preview and as the return value.
-                ;; Also captures raw input for new note creation.
-                :lookup (lambda (selected completions &rest _)
-                          (setq user-input selected)
-                          (cdr (assoc selected completions))))))
+         ;; `vulpea-select-from' guarantees that point, buffer and
+         ;; narrowing survive the prompt: previewing a candidate that
+         ;; lives in the file being edited moves point in that live
+         ;; buffer, and whatever the caller does at point next would
+         ;; land in the previewed heading (d12frosted/vulpea#491).
+         (note (save-excursion
+                 (save-restriction
+                   (consult--read
+                    completions
+                    :prompt (concat prompt ": ")
+                    :require-match require-match
+                    :initial initial-prompt
+                    :history 'minibuffer-history
+                    :state (consult-vulpea--note-preview)
+                    :preview-key consult-vulpea-preview-key
+                    :sort t
+                    :category category
+                    :annotate annotation-function
+                    ;; :lookup returns the note object from alist, making it
+                    ;; available to :state for preview and as the return value.
+                    ;; Also captures raw input for new note creation.
+                    :lookup (lambda (selected completions &rest _)
+                              (setq user-input selected)
+                              (cdr (assoc selected completions))))))))
     (or note
         (make-vulpea-note
          :title (substring-no-properties user-input)
